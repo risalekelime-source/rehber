@@ -91,16 +91,37 @@
             }
         }
 
-        function renderList() {
+       // Türkçe karakterleri normalize eden yardımcı fonksiyon
+function normalizeText(text) {
+    return text
+        .toString()
+        .normalize('NFD') // Karakterleri bileşenlerine ayırır (Ş -> S + ¸)
+        .replace(/[\u0300-\u036f]/g, "") // Diakritik işaretleri temizler
+        .replace(/İ/g, "i") // Büyük İ için özel düzeltme
+        .replace(/I/g, "i") // Büyük I için özel düzeltme
+        .replace(/ı/g, "i") // Küçük ı için özel düzeltme
+        .toLowerCase() // Hepsini küçük harfe çevir
+        .replace(/[ğ]/g, "g")
+        .replace(/[ü]/g, "u")
+        .replace(/[ş]/g, "s")
+        .replace(/[ö]/g, "o")
+        .replace(/[ç]/g, "c");
+}
+
+function renderList() {
     const listContent = document.getElementById('listContent');
-    const search = document.getElementById('searchInput').value.toLowerCase();
+    const searchInput = document.getElementById('searchInput').value;
+    const normalizedSearch = normalizeText(searchInput);
     
-    // BURAYI DÜZENLEYİN: Şirketinizin ana santral numarası
+    // Sabit numara ayarı (Daha önce konuştuğumuz gibi)
     const sabitSantralNo = "03267121719"; 
 
-    const filtered = contacts.filter(c => 
-        c.name.toLowerCase().includes(search) || c.phone.includes(search)
-    ).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+    // Filtreleme mantığı
+    const filtered = contacts.filter(c => {
+        const nameMatch = normalizeText(c.name).includes(normalizedSearch);
+        const phoneMatch = c.phone.toString().includes(normalizedSearch);
+        return nameMatch || phoneMatch;
+    }).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
 
     document.getElementById('contactCount').textContent = `${filtered.length} KİŞİ BULUNDU`;
     
@@ -114,8 +135,7 @@
             lastLetter = letter;
         }
         
-        // tel: linki oluşturma: Sabit No + Virgül (Bekle) + Dahili No
-        const aramaLinki = `tel:${sabitSantralNo},${c.phone}`;
+        const aramaLinki = `tel:${sabitSantralNo},,${c.phone}`;
 
         html += `
             <a href="${aramaLinki}" class="block bg-white mx-4 rounded-2xl mb-2 shadow-sm active:scale-[0.98] transition-transform no-underline">
@@ -134,7 +154,7 @@
             </a>`;
     });
     
-    listContent.innerHTML = html || '<div class="p-10 text-center text-[#8e8e93]">Sonuç bulunamadı</div>';
+    listContent.innerHTML = html || '<div class="p-10 text-center text-[#8e8e93]">Eşleşme bulunamadı</div>';
     lucide.createIcons();
 }
 
