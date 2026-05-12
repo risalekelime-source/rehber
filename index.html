@@ -92,46 +92,51 @@
         }
 
         function renderList() {
-            const listContent = document.getElementById('listContent');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            
-            const filtered = contacts.filter(c => 
-                c.name.toLowerCase().includes(search) || c.phone.includes(search)
-            ).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+    const listContent = document.getElementById('listContent');
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    
+    // BURAYI DÜZENLEYİN: Şirketinizin ana santral numarası
+    const sabitSantralNo = "03267121719"; 
 
-            document.getElementById('contactCount').textContent = `${filtered.length} KİŞİ BULUNDU`;
-            
-            let html = '';
-            let lastLetter = '';
+    const filtered = contacts.filter(c => 
+        c.name.toLowerCase().includes(search) || c.phone.includes(search)
+    ).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
 
-            filtered.forEach(c => {
-                const letter = (c.name[0] || '#').toUpperCase();
-                if (letter !== lastLetter) {
-                    html += `<div class="px-6 py-2 text-xs font-bold text-[#8e8e93] sticky top-0 bg-[#f2f2f7]/95 backdrop-blur-sm z-10">${letter}</div>`;
-                    lastLetter = letter;
-                }
-                
-                // Telefon araması için link ekledim
-                html += `
-                    <a href="tel:${c.phone}" class="block bg-white mx-4 rounded-2xl mb-2 shadow-sm active:scale-[0.98] transition-transform no-underline">
-                        <div class="flex items-center gap-4 p-4">
-                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0" style="background:${getAvatarColor(c.name)}">
-                                ${c.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div class="min-w-0">
-                                <div class="text-[#1c1c1e] font-bold text-[17px] leading-tight truncate">${c.name}</div>
-                                <div class="text-[#007aff] text-[14px] mt-0.5 font-medium">${c.phone}</div>
-                            </div>
-                            <div class="ml-auto text-[#e5e5ea]">
-                                <i data-lucide="phone" class="w-5 h-5 text-[#34c759]"></i>
-                            </div>
-                        </div>
-                    </a>`;
-            });
-            
-            listContent.innerHTML = html || '<div class="p-10 text-center text-[#8e8e93]">Sonuç bulunamadı</div>';
-            lucide.createIcons();
+    document.getElementById('contactCount').textContent = `${filtered.length} KİŞİ BULUNDU`;
+    
+    let html = '';
+    let lastLetter = '';
+
+    filtered.forEach(c => {
+        const letter = (c.name[0] || '#').toUpperCase();
+        if (letter !== lastLetter) {
+            html += `<div class="px-6 py-2 text-xs font-bold text-[#8e8e93] sticky top-0 bg-[#f2f2f7]/95 backdrop-blur-sm z-10">${letter}</div>`;
+            lastLetter = letter;
         }
+        
+        // tel: linki oluşturma: Sabit No + Virgül (Bekle) + Dahili No
+        const aramaLinki = `tel:${sabitSantralNo},${c.phone}`;
+
+        html += `
+            <a href="${aramaLinki}" class="block bg-white mx-4 rounded-2xl mb-2 shadow-sm active:scale-[0.98] transition-transform no-underline">
+                <div class="flex items-center gap-4 p-4">
+                    <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0" style="background:${getAvatarColor(c.name)}">
+                        ${c.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-[#1c1c1e] font-bold text-[17px] leading-tight truncate">${c.name}</div>
+                        <div class="text-[#8e8e93] text-[14px] mt-0.5 font-medium italic">Dahili: ${c.phone}</div>
+                    </div>
+                    <div class="ml-auto text-[#34c759]">
+                        <i data-lucide="phone-forwarded" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </a>`;
+    });
+    
+    listContent.innerHTML = html || '<div class="p-10 text-center text-[#8e8e93]">Sonuç bulunamadı</div>';
+    lucide.createIcons();
+}
 
         function getAvatarColor(name) {
             const colors = ['#007aff','#34c759','#ff3b30','#ff9500','#af52de','#5856d6','#ff2d55'];
