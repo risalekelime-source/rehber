@@ -1,241 +1,136 @@
 <!doctype html>
 <html lang="tr" class="h-full">
 <head>
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Hızlı Rehber</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: #f2f2f7; margin: 0; }
-        .slide-up { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        body { font-family: 'DM Sans', sans-serif; background: #f2f2f7; margin: 0; overscroll-behavior-y: contain; }
         input:focus { outline: none; }
         ::-webkit-scrollbar { width: 0; }
-        
-        @media (min-width: 640px) {
-            #app-frame { 
-                margin: 20px auto; 
-                height: calc(100vh - 40px); 
-                border-radius: 30px; 
-                box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-                border: 8px solid #1c1c1e;
-            }
-        }
+        .safe-top { padding-top: env(safe-area-inset-top); }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
-<body class="h-full">
+<body class="h-full overflow-hidden">
     <div id="app" class="h-full w-full flex justify-center">
-        <div id="app-frame" class="w-full max-w-[430px] h-full flex flex-col relative overflow-hidden bg-[#f2f2f7]">
+        <div class="w-full max-w-[430px] h-full flex flex-col relative overflow-hidden bg-[#f2f2f7]">
             
-            <div class="flex-shrink-0 px-5 pt-8 pb-3">
-                <div class="flex justify-between items-center mb-1">
-                    <h1 class="font-bold text-3xl text-[#1c1c1e]">Rehber</h1>
-                    <div class="flex gap-4">
-                        <label for="fileInput" class="text-[#007aff] cursor-pointer" title="Dosyadan Aktar">
-                            <i data-lucide="upload" class="w-6 h-6"></i>
-                        </label>
-                        <span id="addBtn" class="text-[#007aff] cursor-pointer">
-                            <i data-lucide="plus" class="w-7 h-7"></i>
-                        </span>
-                    </div>
-                </div>
-                <div id="contactCount" class="text-xs text-[#8e8e93] font-medium">0 kişi</div>
+            <!-- Header -->
+            <div class="flex-shrink-0 px-6 pt-12 pb-3 safe-top">
+                <h1 class="font-bold text-3xl text-[#1c1c1e] tracking-tight">Rehber</h1>
+                <div id="contactCount" class="text-xs text-[#8e8e93] font-bold mt-1 uppercase tracking-wider">Yükleniyor...</div>
             </div>
 
-            <input id="fileInput" type="file" accept=".txt" class="hidden">
-
-            <div id="contactList" class="flex-1 overflow-auto pb-24">
-                <div id="emptyState" class="flex flex-col items-center justify-center py-20 hidden">
-                    <div class="rounded-full flex items-center justify-center mb-4 w-20 h-20 bg-[#e5e5ea]">
-                        <i data-lucide="users" class="w-10 h-10 text-[#8e8e93]"></i>
-                    </div>
-                    <p class="text-[#8e8e93] font-medium">Henüz kişi yok</p>
-                </div>
-                <div id="listContent"></div>
+            <!-- Liste Alanı -->
+            <div id="contactList" class="flex-1 overflow-auto pb-32">
+                <div id="listContent" class="space-y-1"></div>
             </div>
 
-            <div class="absolute bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-[#f2f2f7]/90 backdrop-blur-md border-t border-[#e5e5ea]">
-                <div class="flex items-center gap-2 px-4 py-3 rounded-2xl bg-[#e5e5ea]">
-                    <i data-lucide="search" class="w-5 h-5 text-[#8e8e93]"></i>
-                    <input id="searchInput" type="text" placeholder="Hızlı ara..." class="bg-transparent flex-1 text-base text-[#1c1c1e]">
+            <!-- Arama Çubuğu -->
+            <div class="absolute bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-[#f2f2f7]/80 backdrop-blur-xl border-t border-[#d1d1d6] safe-bottom">
+                <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#e3e3e8]">
+                    <i data-lucide="search" class="w-4 h-4 text-[#8e8e93]"></i>
+                    <input id="searchInput" type="text" placeholder="İsim veya numara ara..." class="bg-transparent flex-1 text-base text-[#1c1c1e] outline-none">
                 </div>
             </div>
 
-            <div id="modal" class="absolute inset-0 z-50 hidden bg-black/30">
-                <div class="absolute bottom-0 left-0 right-0 slide-up rounded-t-3xl bg-[#f2f2f7] max-h-[90%] shadow-2xl">
-                    <div class="flex justify-between items-center px-6 py-5 border-b border-[#e5e5ea]">
-                        <span id="modalCancel" class="text-[#007aff] cursor-pointer text-lg">İptal</span>
-                        <span id="modalTitle" class="font-bold text-lg">Yeni Kişi</span>
-                        <span id="modalSave" class="font-bold text-[#007aff] cursor-pointer text-lg">Bitti</span>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#e5e5ea]">
-                            <input id="inputName" type="text" placeholder="Ad Soyad" class="w-full px-5 py-4 border-b border-[#f2f2f7] text-lg">
-                            <input id="inputPhone" type="tel" placeholder="Telefon" class="w-full px-5 py-4 text-lg">
-                        </div>
-                        <button id="deleteBtn" class="hidden w-full py-4 bg-white text-[#ff3b30] rounded-2xl font-bold text-lg shadow-sm border border-[#e5e5ea]">Kişiyi Sil</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="toast" class="absolute bottom-28 left-1/2 -translate-x-1/2 hidden px-6 py-3 rounded-full bg-black/80 text-white text-sm font-medium z-[60]"></div>
         </div>
     </div>
 
     <script>
         let contacts = [];
-        let currentEditId = null;
 
-        function loadData() {
-            const data = localStorage.getItem('rehber_simple_v2');
-            contacts = data ? JSON.parse(data) : [];
-            renderList();
-        }
-
-        function saveData() {
-            localStorage.setItem('rehber_simple_v2', JSON.stringify(contacts));
-            renderList();
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 2000);
+        // TXT DOSYASINDAN VERİ ÇEKME
+        async function loadData() {
+            try {
+                // rehber.txt dosyasını oku (Cache engellemek için zaman damgası eklendi)
+                const response = await fetch('rehber.txt?t=' + Date.now());
+                const text = await response.text();
+                
+                // Satır satır parçala ve objeye dönüştür
+                contacts = text.split('\n')
+                    .filter(line => line.trim().includes(';'))
+                    .map(line => {
+                        const [name, phone] = line.split(';');
+                        return { 
+                            name: name.trim(), 
+                            phone: phone.trim() 
+                        };
+                    });
+                
+                renderList();
+            } catch (error) {
+                document.getElementById('listContent').innerHTML = `
+                    <div class="p-10 text-center text-[#8e8e93]">
+                        <p>rehber.txt bulunamadı veya okunamadı.</p>
+                    </div>`;
+                console.error("Hata:", error);
+            }
         }
 
         function renderList() {
             const listContent = document.getElementById('listContent');
-            const emptyState = document.getElementById('emptyState');
             const search = document.getElementById('searchInput').value.toLowerCase();
             
             const filtered = contacts.filter(c => 
                 c.name.toLowerCase().includes(search) || c.phone.includes(search)
             ).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
 
-            document.getElementById('contactCount').textContent = `${contacts.length} kişi`;
+            document.getElementById('contactCount').textContent = `${filtered.length} KİŞİ BULUNDU`;
             
-            if (filtered.length === 0) {
-                emptyState.classList.remove('hidden');
-                listContent.innerHTML = '';
-            } else {
-                emptyState.classList.add('hidden');
-                let html = '';
-                let lastLetter = '';
+            let html = '';
+            let lastLetter = '';
 
-                filtered.forEach(c => {
-                    const letter = (c.name[0] || '#').toUpperCase();
-                    if (letter !== lastLetter) {
-                        html += `<div class="px-5 py-2 text-xs font-bold text-[#8e8e93] sticky top-0 bg-[#f2f2f7]/95 backdrop-blur-sm z-10">${letter}</div>`;
-                        lastLetter = letter;
-                    }
-                    html += `
-                        <div class="bg-white mx-4 rounded-2xl mb-3 shadow-sm cursor-pointer active:scale-[0.98] transition-all" onclick="editContact('${c.id}')">
-                            <div class="flex items-center gap-4 p-4">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-inner" style="background:${getAvatarColor(c.name)}">
-                                    ${c.name.charAt(0).toUpperCase()}
-                                </div>
-                                <div class="min-w-0">
-                                    <div class="text-[#1c1c1e] font-bold text-lg leading-tight truncate">${c.name}</div>
-                                    <div class="text-[#8e8e93] text-sm mt-0.5">${c.phone}</div>
-                                </div>
+            filtered.forEach(c => {
+                const letter = (c.name[0] || '#').toUpperCase();
+                if (letter !== lastLetter) {
+                    html += `<div class="px-6 py-2 text-xs font-bold text-[#8e8e93] sticky top-0 bg-[#f2f2f7]/95 backdrop-blur-sm z-10">${letter}</div>`;
+                    lastLetter = letter;
+                }
+                
+                // Telefon araması için link ekledim
+                html += `
+                    <a href="tel:${c.phone}" class="block bg-white mx-4 rounded-2xl mb-2 shadow-sm active:scale-[0.98] transition-transform no-underline">
+                        <div class="flex items-center gap-4 p-4">
+                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0" style="background:${getAvatarColor(c.name)}">
+                                ${c.name.charAt(0).toUpperCase()}
                             </div>
-                        </div>`;
-                });
-                listContent.innerHTML = html;
-            }
+                            <div class="min-w-0">
+                                <div class="text-[#1c1c1e] font-bold text-[17px] leading-tight truncate">${c.name}</div>
+                                <div class="text-[#007aff] text-[14px] mt-0.5 font-medium">${c.phone}</div>
+                            </div>
+                            <div class="ml-auto text-[#e5e5ea]">
+                                <i data-lucide="phone" class="w-5 h-5 text-[#34c759]"></i>
+                            </div>
+                        </div>
+                    </a>`;
+            });
+            
+            listContent.innerHTML = html || '<div class="p-10 text-center text-[#8e8e93]">Sonuç bulunamadı</div>';
             lucide.createIcons();
         }
 
-        document.getElementById('addBtn').onclick = () => {
-            currentEditId = null;
-            document.getElementById('modalTitle').textContent = "Yeni Kişi";
-            document.getElementById('inputName').value = '';
-            document.getElementById('inputPhone').value = '';
-            document.getElementById('deleteBtn').classList.add('hidden');
-            document.getElementById('modal').classList.remove('hidden');
-            document.getElementById('inputName').focus();
-        };
-
-        window.editContact = (id) => {
-            const c = contacts.find(x => x.id === id);
-            if(!c) return;
-            currentEditId = id;
-            document.getElementById('modalTitle').textContent = "Kişiyi Düzenle";
-            document.getElementById('inputName').value = c.name;
-            document.getElementById('inputPhone').value = c.phone;
-            document.getElementById('deleteBtn').classList.remove('hidden');
-            document.getElementById('modal').classList.remove('hidden');
-        };
-
-        document.getElementById('modalSave').onclick = () => {
-            const name = document.getElementById('inputName').value.trim();
-            const phone = document.getElementById('inputPhone').value.trim();
-
-            if(!name) return showToast("Lütfen bir isim girin");
-
-            if(currentEditId) {
-                const idx = contacts.findIndex(c => c.id === currentEditId);
-                contacts[idx] = { ...contacts[idx], name, phone };
-            } else {
-                contacts.push({ id: Date.now().toString(), name, phone });
-            }
-            
-            saveData();
-            document.getElementById('modal').classList.add('hidden');
-            showToast("Kaydedildi");
-        };
-
-        document.getElementById('modalCancel').onclick = () => document.getElementById('modal').classList.add('hidden');
-
-        document.getElementById('deleteBtn').onclick = () => {
-            if(confirm("Bu kişiyi silmek istiyor musunuz?")) {
-                contacts = contacts.filter(c => c.id !== currentEditId);
-                saveData();
-                document.getElementById('modal').classList.add('hidden');
-                showToast("Silindi");
-            }
-        };
-
-        document.getElementById('fileInput').onchange = (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const lines = ev.target.result.split('\n');
-                let count = 0;
-                lines.forEach(line => {
-                    const parts = line.split(';'); 
-                    if(parts.length >= 2) {
-                        contacts.push({ 
-                            id: Math.random().toString(36).substr(2, 9), 
-                            name: parts[0].trim(), 
-                            phone: parts[1].trim() 
-                        });
-                        count++;
-                    }
-                });
-                saveData();
-                showToast(`${count} kişi eklendi`);
-            };
-            reader.readAsText(file);
-            e.target.value = '';
-        };
-
-        document.getElementById('searchInput').oninput = renderList;
-
         function getAvatarColor(name) {
-            const colors = ['#007aff','#34c759','#ff3b30','#ff9500','#af52de','#5856d6'];
+            const colors = ['#007aff','#34c759','#ff3b30','#ff9500','#af52de','#5856d6','#ff2d55'];
             let hash = 0;
             for (let i = 0; i < (name || "").length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
             return colors[Math.abs(hash) % colors.length];
         }
 
+        document.getElementById('searchInput').oninput = renderList;
+
+        // Sayfa açıldığında veriyi yükle
         loadData();
     </script>
 </body>
