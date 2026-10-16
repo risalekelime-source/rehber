@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DDH Rehber</title>
 
-    <!-- Manifest Bağlantısı -->
-    <link rel="manifest" href="manifest.json">
 
-    <!-- iOS (Apple) İçin Uygulama Ayarları -->
+    <!-- Manifest Bağlantısı -->
+<link rel="manifest" href="manifest.json">
+
+<!-- iOS (Apple) İçin Uygulama Ayarları -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rehber">
+
+<!-- Durum Çubuğu Rengi (Android ve iOS) -->
+<meta name="theme-color" content="#f2f2f7">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Rehber">
-    <meta name="theme-color" content="#f2f2f7">
-    <meta name="mobile-web-app-capable" content="yes">
 
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -21,92 +27,58 @@
     
     <style>
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: #e5e5ea; margin: 0; overscroll-behavior-y: contain; }
+        body { font-family: 'DM Sans', sans-serif; background: #f2f2f7; margin: 0; overscroll-behavior-y: contain; }
         input:focus { outline: none; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 4px; }
+        ::-webkit-scrollbar { width: 0; }
         .safe-top { padding-top: env(safe-area-inset-top); }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
-<body class="h-full flex justify-center items-center">
-    <div id="app" class="h-full w-full md:max-w-2xl md:h-[90vh] md:rounded-3xl md:shadow-2xl flex flex-col relative overflow-hidden bg-[#f2f2f7]">
-        
-        <!-- Header -->
-        <div class="flex-shrink-0 px-6 pt-10 pb-3 safe-top bg-[#f2f2f7]/90 backdrop-blur-md z-20 flex justify-between items-center border-b border-[#d1d1d6]/50">
-            <div>
-                <h2 class="font-bold text-2xl md:text-3xl text-[#1c1c1e] tracking-tight">Rehber</h2>
-                <div id="contactCount" class="text-xs text-[#8e8e93] font-bold mt-0.5 uppercase tracking-wider">Yükleniyor...</div>
+<body class="h-full overflow-hidden">
+    <div id="app" class="h-full w-full flex justify-center">
+        <div class="w-full max-w-[430px] h-full flex flex-col relative overflow-hidden bg-[#f2f2f7]">
+            
+            <!-- Header -->
+            <div class="flex-shrink-0 px-6 pt-12 pb-3 safe-top">
+                <h2 class="font-bold text-3xl text-[#1c1c1e] tracking-tight">Rehber</h2>
+                <div id="contactCount" class="text-xs text-[#8e8e93] font-bold mt-1 uppercase tracking-wider">Yükleniyor...</div>
             </div>
-            <button onclick="openAdminLogin()" class="p-2.5 rounded-full bg-[#e3e3e8] text-[#1c1c1e] hover:bg-[#d1d1d6] transition active:scale-95 flex items-center justify-center">
-                <i data-lucide="lock" class="w-5 h-5"></i>
-            </button>
-        </div>
 
-        <!-- Liste Alanı -->
-        <div id="contactList" class="flex-1 overflow-y-auto pt-2 pb-36">
-            <div id="listContent" class="space-y-1"></div>
-        </div>
-
-        <!-- Arama Çubuğu -->
-        <div class="absolute bottom-0 left-0 right-0 px-5 pb-6 pt-3 bg-[#f2f2f7]/90 backdrop-blur-xl border-t border-[#d1d1d6] safe-bottom z-10">
-            <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#e3e3e8]">
-                <i data-lucide="search" class="w-4 h-4 text-[#8e8e93]"></i>
-                <input id="searchInput" type="text" placeholder="İsim veya dahili numara ara..." class="bg-transparent flex-1 text-base text-[#1c1c1e] outline-none">
+            <!-- Liste Alanı -->
+            <div id="contactList" class="flex-1 overflow-auto pb-32">
+                <div id="listContent" class="space-y-1"></div>
             </div>
-        </div>
 
-    </div>
+            <!-- Arama Çubuğu -->
+            <div class="absolute bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-[#f2f2f7]/80 backdrop-blur-xl border-t border-[#d1d1d6] safe-bottom">
+                <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#e3e3e8]">
+                    <i data-lucide="search" class="w-4 h-4 text-[#8e8e93]"></i>
+                    <input id="searchInput" type="text" placeholder="İsim veya numara ara..." class="bg-transparent flex-1 text-base text-[#1c1c1e] outline-none">
+                </div>
+            </div>
 
-    <!-- Yönetim Giriş / Panel Modalı -->
-    <div id="adminModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
-                <h3 id="modalTitle" class="font-bold text-xl text-[#1c1c1e]">Yönetim Paneli</h3>
-                <button onclick="closeModal()" class="p-1 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div id="modalBody" class="overflow-y-auto flex-1 space-y-4 pr-1">
-                <!-- Dinamik içerik buraya gelecek -->
-            </div>
         </div>
     </div>
 
     <script>
         let contacts = [];
-        const sabitSantralNo = "03267121719"; 
-        const ADMIN_PASS = "1234"; // Yönetim şifresi
 
-        // --- GİTHUB AYARLARI ---
-        const GITHUB_USER = "risalekelime-source"; 
-        const GITHUB_REPO = "rehber";
-        const GITHUB_TOKEN = "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"; 
-
-        // REHBER.TXT ÇEKME
+        // TXT DOSYASINDAN VERİ ÇEKME
         async function loadData() {
             try {
+                // rehber.txt dosyasını oku (Cache engellemek için zaman damgası eklendi)
                 const response = await fetch('rehber.txt?t=' + Date.now());
                 const text = await response.text();
                 
+                // Satır satır parçala ve objeye dönüştür
                 contacts = text.split('\n')
                     .filter(line => line.trim().includes(';'))
                     .map(line => {
-                        let [rawName, phone] = line.split(';');
-                        rawName = rawName.trim();
-                        phone = phone.trim();
-
-                        let name = rawName;
-                        let detail = "";
-
-                        // Eğer isim içinde "-" işareti varsa parçala
-                        if (rawName.includes('-')) {
-                            const parts = rawName.split('-');
-                            name = parts[0].trim();
-                            detail = parts.slice(1).join('-').trim(); // Geri kalan kısmı detay olarak al
-                        }
-
-                        return { name, detail, phone };
+                        const [name, phone] = line.split(';');
+                        return { 
+                            name: name.trim(), 
+                            phone: phone.trim() 
+                        };
                     });
                 
                 renderList();
@@ -119,104 +91,72 @@
             }
         }
 
-        // GİTHUB API ÜZERİNDEN REHBER.TXT DOSYASINI GÜNCELLEME
-        async function saveToGitHub() {
-            // Kaydederken orijinal formatı (Ad - Detay;Numara) koruyarak birleştiriyoruz
-            const textContent = contacts.map(c => `${c.name}${c.detail ? ' - ' + c.detail : ''};${c.phone}`).join('\n');
-            const base64Content = btoa(unescape(encodeURIComponent(textContent)));
-            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/rehber.txt`;
+       // Türkçe karakterleri normalize eden yardımcı fonksiyon
+function normalizeText(text) {
+    return text
+        .toString()
+        .normalize('NFD') // Karakterleri bileşenlerine ayırır (Ş -> S + ¸)
+        .replace(/[\u0300-\u036f]/g, "") // Diakritik işaretleri temizler
+        .replace(/İ/g, "i") // Büyük İ için özel düzeltme
+        .replace(/I/g, "i") // Büyük I için özel düzeltme
+        .replace(/ı/g, "i") // Küçük ı için özel düzeltme
+        .toLowerCase() // Hepsini küçük harfe çevir
+        .replace(/[ğ]/g, "g")
+        .replace(/[ü]/g, "u")
+        .replace(/[ş]/g, "s")
+        .replace(/[ö]/g, "o")
+        .replace(/[ç]/g, "c");
+}
 
-            try {
-                const getRes = await fetch(apiUrl, {
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-                });
-                const fileData = await getRes.json();
-                const sha = fileData.sha;
+function renderList() {
+    const listContent = document.getElementById('listContent');
+    const searchInput = document.getElementById('searchInput').value;
+    const normalizedSearch = normalizeText(searchInput);
+    
+    // Sabit numara ayarı (Daha önce konuştuğumuz gibi)
+    const sabitSantralNo = "03267121719"; 
 
-                const putRes = await fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: "Rehber otomatik güncellendi",
-                        content: base64Content,
-                        sha: sha
-                    })
-                });
+    // Filtreleme mantığı
+    const filtered = contacts.filter(c => {
+        const nameMatch = normalizeText(c.name).includes(normalizedSearch);
+        const phoneMatch = c.phone.toString().includes(normalizedSearch);
+        return nameMatch || phoneMatch;
+    }).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
 
-                if (!putRes.ok) {
-                    alert("GitHub'a kaydedilirken hata oluştu!");
-                }
-            } catch (e) {
-                console.error("Kayıt hatası:", e);
-                alert("GitHub API ile bağlantı kurulamadı!");
-            }
+    document.getElementById('contactCount').textContent = `${filtered.length} KİŞİ BULUNDU`;
+    
+    let html = '';
+    let lastLetter = '';
+
+    filtered.forEach(c => {
+        const letter = (c.name[0] || '#').toUpperCase();
+        if (letter !== lastLetter) {
+            html += `<div class="px-6 py-2 text-xs font-bold text-[#8e8e93] sticky top-0 bg-[#f2f2f7]/95 backdrop-blur-sm z-10">${letter}</div>`;
+            lastLetter = letter;
         }
+        
+        const aramaLinki = `tel:${sabitSantralNo},,${c.phone}`;
 
-        // Türkçe karakter normalize
-        function normalizeText(text) {
-            return text
-                .toString()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/İ/g, "i").replace(/I/g, "i").replace(/ı/g, "i")
-                .toLowerCase()
-                .replace(/[ğ]/g, "g").replace(/[ü]/g, "u").replace(/[ş]/g, "s")
-                .replace(/[ö]/g, "o").replace(/[ç]/g, "c");
-        }
-
-        function renderList() {
-            const listContent = document.getElementById('listContent');
-            const searchInput = document.getElementById('searchInput').value;
-            const normalizedSearch = normalizeText(searchInput);
-            
-            const filtered = contacts.filter(c => {
-                const fullName = c.detail ? `${c.name}${c.detail}` : c.name;
-                const nameMatch = normalizeText(fullName).includes(normalizedSearch);
-                const phoneMatch = c.phone.toString().includes(normalizedSearch);
-                return nameMatch || phoneMatch;
-            }).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
-
-            document.getElementById('contactCount').textContent = `${filtered.length} KİŞİ BULUNDU`;
-            
-            let html = '';
-            let lastLetter = '';
-
-            filtered.forEach((c, index) => {
-                const letter = (c.name[0] || '#').toUpperCase();
-                if (letter !== lastLetter) {
-                    html += `<div class="px-6 py-2 text-xs font-bold text-[#8e8e93] sticky top-0 bg-[#f2f2f7]/95 backdrop-blur-sm z-10">${letter}</div>`;
-                    lastLetter = letter;
-                }
-                
-                const aramaLinki = `tel:${sabitSantralNo},,${c.phone}`;
-                const nameSizeClass = c.name.length > 25 ? 'text-[14px] sm:text-[16px]' : 'text-[16px] sm:text-[17px]';
-                
-                // Dahili yanındaki detay gösterimi
-                const phoneDisplay = c.detail ? `Dahili: ${c.phone} (${c.detail})` : `Dahili: ${c.phone}`;
-
-                html += `
-                    <a href="${aramaLinki}" class="block bg-white mx-4 rounded-2xl mb-2 shadow-sm active:scale-[0.98] transition-transform no-underline">
-                        <div class="flex items-center gap-4 p-4">
-                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0" style="background:${getAvatarColor(c.name)}">
-                                ${c.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="text-[#1c1c1e] font-bold ${nameSizeClass} leading-tight truncate">${c.name}</div>
-                                <div class="text-[#8e8e93] text-[13px] sm:text-[14px] mt-0.5 font-medium italic">${phoneDisplay}</div>
-                            </div>
-                            <div class="ml-auto text-[#34c759] shrink-0">
-                                <i data-lucide="phone-forwarded" class="w-5 h-5"></i>
-                            </div>
-                        </div>
-                    </a>`;
-            });
-            
-            listContent.innerHTML = html || '<div class="p-10 text-center text-[#8e8e93]">Eşleşme bulunamadı</div>';
-            lucide.createIcons();
-        }
+        html += `
+            <a href="${aramaLinki}" class="block bg-white mx-4 rounded-2xl mb-2 shadow-sm active:scale-[0.98] transition-transform no-underline">
+                <div class="flex items-center gap-4 p-4">
+                    <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0" style="background:${getAvatarColor(c.name)}">
+                        ${c.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-[#1c1c1e] font-bold text-[17px] leading-tight truncate">${c.name}</div>
+                        <div class="text-[#8e8e93] text-[14px] mt-0.5 font-medium italic">Dahili: ${c.phone}</div>
+                    </div>
+                    <div class="ml-auto text-[#34c759]">
+                        <i data-lucide="phone-forwarded" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </a>`;
+    });
+    
+    listContent.innerHTML = html || '<div class="p-10 text-center text-[#8e8e93]">Eşleşme bulunamadı</div>';
+    lucide.createIcons();
+}
 
         function getAvatarColor(name) {
             const colors = ['#007aff','#34c759','#ff3b30','#ff9500','#af52de','#5856d6','#ff2d55'];
@@ -225,65 +165,10 @@
             return colors[Math.abs(hash) % colors.length];
         }
 
-        // YÖNETİM PANELİ İŞLEMLERİ
-        function openAdminLogin() {
-            const modal = document.getElementById('adminModal');
-            const modalBody = document.getElementById('modalBody');
-            document.getElementById('modalTitle').textContent = "Yönetim Girişi";
-            
-            modalBody.innerHTML = `
-                <div class="space-y-4 py-4">
-                    <p class="text-sm text-gray-600">Yönetim paneline erişmek için şifreyi giriniz:</p>
-                    <input type="password" id="adminPassInput" placeholder="Şifre (1234)" class="w-full px-4 py-3 bg-gray-100 rounded-xl text-base outline-none border border-gray-200 focus:border-blue-500">
-                    <button onclick="checkAdminPassword()" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-700 transition">Giriş Yap</button>
-                </div>
-            `;
-            modal.classList.remove('hidden');
-            lucide.createIcons();
-        }
+        document.getElementById('searchInput').oninput = renderList;
 
-        function checkAdminPassword() {
-            const val = document.getElementById('adminPassInput').value;
-            if (val === ADMIN_PASS) {
-                renderAdminPanel();
-            } else {
-                alert("Hatalı şifre!");
-            }
-        }
-
-        function renderAdminPanel() {
-            const modalBody = document.getElementById('modalBody');
-            document.getElementById('modalTitle').textContent = "Rehber Yönetimi (GitHub)";
-
-            let listHtml = contacts.map((c, i) => {
-                const fullDisplayName = c.detail ? `${c.name} -${c.detail}` : c.name;
-                return `
-                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-200">
-                        <div class="min-w-0 pr-2">
-                            <div class="font-bold text-sm text-gray-800 truncate">${fullDisplayName}</div>
-                            <div class="text-xs text-gray-500">Dahili: ${c.phone}</div>
-                        </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <button onclick="editContact(${i})" class="p-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                            <button onclick="deleteContact(${i})" class="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            modalBody.innerHTML = `
-                <div class="space-y-4">
-                    <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 space-y-3">
-                        <h4 class="font-bold text-sm text-blue-900">Yeni Kişi Ekle</h4>
-                        <input type="text" id="newName" placeholder="Ad Soyad veya Birim - Detay (Örn: EKG BAY - 1.KAT)" class="w-full px-3 py-2 bg-white rounded-xl text-sm border border-blue-200 outline-none">
-                        <input type="text" id="newPhone" placeholder="Dahili Numara" class="w-full px-3 py-2 bg-white rounded-xl text-sm border border-blue-200 outline-none">
-                        <button onclick="addContact()" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl text-sm shadow hover:bg-blue-700 transition">Kişiyi Ekle ve Kaydet</button>
-                    </div>
-
-                    <div class="border-t border-gray-200 pt-4">
-                        <h4 class="font-bold text-sm text-gray-700 mb-2">Kayıtlı Kişiler (${contacts.length})</h4>
-                        <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                            ${listHtml || '<p class="text-xs text-gray-400">Kayıt bulunamadı.</p>'}
-                        </div>
-                    </div>
-                </div>
+        // Sayfa açıldığında veriyi yükle
+        loadData();
+    </script>
+</body>
+</html>
