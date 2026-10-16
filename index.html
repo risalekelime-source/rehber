@@ -70,17 +70,20 @@
 
     <script>
         let contacts = [];
+        let config = {};
         const sabitSantralNo = "03267121719"; 
-        const ADMIN_PASS = "1234";
 
-        const GITHUB_USER = "risalekelime-source"; 
-        const GITHUB_REPO = "rehber";
-        const GITHUB_TOKEN = "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"; 
-
+        // CONFIG DOSYASINI VE REHBERİ YÜKLEME
         async function loadData() {
             try {
+                // Config dosyasını oku
+                const configRes = await fetch('config.json?t=' + Date.now());
+                if (!configRes.ok) throw new Error("config.json okunamadı!");
+                config = await configRes.json();
+
+                // Rehber dosyasını oku
                 const response = await fetch('rehber.txt?t=' + Date.now());
-                if (!response.ok) throw new Error("rehber.txt yüklenemedi (HTTP " + response.status + ")");
+                if (!response.ok) throw new Error("rehber.txt yüklenemedi");
                 const text = await response.text();
                 
                 contacts = text.split('\n')
@@ -105,22 +108,23 @@
             } catch (error) {
                 document.getElementById('listContent').innerHTML = `
                     <div class="p-10 text-center text-[#8e8e93]">
-                        <p class="font-bold text-red-500">rehber.txt okunamadı!</p>
+                        <p class="font-bold text-red-500">Sistem Yüklenemedi!</p>
                         <p class="text-xs mt-2">${error.message}</p>
                     </div>`;
-                document.getElementById('contactCount').textContent = "HATA OLUŞTU";
+                document.getElementById('contactCount').textContent = "HATA";
                 console.error("Yükleme Hatası:", error);
             }
         }
 
+        // GİTHUB API GÜNCELLEME (Bearer token formatı düzeltildi)
         async function saveToGitHub() {
             const textContent = contacts.map(c => `${c.name}${c.detail ? ' - ' + c.detail : ''};${c.phone}`).join('\n');
             const base64Content = btoa(unescape(encodeURIComponent(textContent)));
-            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/rehber.txt`;
+            const apiUrl = `https://api.github.com/repos/${config.github_user}/${config.github_repo}/contents/rehber.txt`;
 
             try {
                 const getRes = await fetch(apiUrl, {
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                    headers: { 'Authorization': `Bearer ${config.github_token}` }
                 });
                 const fileData = await getRes.json();
                 const sha = fileData.sha;
@@ -128,7 +132,7 @@
                 const putRes = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Authorization': `Bearer ${config.github_token}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
@@ -145,6 +149,14 @@
                 console.error("Kayıt hatası:", e);
                 alert("GitHub API ile bağlantı kurulamadı!");
             }
+        }
+
+        // Şifre güvenliği için SHA-256 hash hesaplama fonksiyonu
+        async function hashString(string) {
+            const utf8 = new TextEncoder().encode(string);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
         function normalizeText(text) {
@@ -222,7 +234,7 @@
             modalBody.innerHTML = `
                 <div class="space-y-4 py-4">
                     <p class="text-sm text-gray-600">Yönetim paneline erişmek için şifreyi giriniz:</p>
-                    <input type="password" id="adminPassInput" placeholder="Şifre (1234)" class="w-full px-4 py-3 bg-gray-100 rounded-xl text-base outline-none border border-gray-200 focus:border-blue-500">
+                    <input type="password" id="adminPassInput" placeholder="Şifre" class="w-full px-4 py-3 bg-gray-100 rounded-xl text-base outline-none border border-gray-200 focus:border-blue-500">
                     <button onclick="checkAdminPassword()" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-700 transition">Giriş Yap</button>
                 </div>
             `;
@@ -230,9 +242,10 @@
             lucide.createIcons();
         }
 
-        function checkAdminPassword() {
+        async function checkAdminPassword() {
             const val = document.getElementById('adminPassInput').value;
-            if (val === ADMIN_PASS) {
+            const inputHash = await hashString(val);
+            if (inputHash === config.admin_pass_hash) {
                 renderAdminPanel();
             } else {
                 alert("Hatalı şifre!");
