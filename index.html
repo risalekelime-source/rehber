@@ -70,28 +70,18 @@
 
     <script>
         let contacts = [];
-        let config = {};
         const sabitSantralNo = "03267121719"; 
+        const ADMIN_PASS = "1234";
 
-        // CONFIG VE REHBER.TXT DOSYASINI GİTHUB API ÜZERİNDEN OKUMA
+        const GITHUB_USER = "risalekelime-source"; 
+        const GITHUB_REPO = "rehber";
+        const GITHUB_TOKEN = "BURAYA_KENDI_PAT_TOKENINIZI_YAZIN"; 
+
         async function loadData() {
             try {
-                // 1. Önce config.json dosyasını oku
-                const configRes = await fetch('config.json?t=' + Date.now());
-                if (!configRes.ok) throw new Error("config.json okunamadı!");
-                config = await configRes.json();
-
-                // 2. Gizli repolar için rehber.txt dosyasını GitHub API (Bearer token) ile çek
-                const apiUrl = `https://api.github.com/repos/${config.github_user}/${config.github_repo}/contents/rehber.txt`;
-                const res = await fetch(apiUrl, {
-                    headers: { 'Authorization': `Bearer ${config.github_token}` }
-                });
-                
-                if (!res.ok) throw new Error("rehber.txt GitHub API üzerinden okunamadı!");
-                const fileJson = await res.json();
-                
-                // Base64 içeriğini çöz
-                const text = decodeURIComponent(escape(atob(fileJson.content)));
+                const response = await fetch('rehber.txt?t=' + Date.now());
+                if (!response.ok) throw new Error("rehber.txt yüklenemedi (HTTP " + response.status + ")");
+                const text = await response.text();
                 
                 contacts = text.split('\n')
                     .filter(line => line.trim().includes(';'))
@@ -115,23 +105,22 @@
             } catch (error) {
                 document.getElementById('listContent').innerHTML = `
                     <div class="p-10 text-center text-[#8e8e93]">
-                        <p class="font-bold text-red-500">Sistem Yüklenemedi!</p>
+                        <p class="font-bold text-red-500">rehber.txt okunamadı!</p>
                         <p class="text-xs mt-2">${error.message}</p>
                     </div>`;
-                document.getElementById('contactCount').textContent = "HATA";
+                document.getElementById('contactCount').textContent = "HATA OLUŞTU";
                 console.error("Yükleme Hatası:", error);
             }
         }
 
-        // GİTHUB API ÜZERİNDEN REHBER.TXT DOSYASINI GÜNCELLEME
         async function saveToGitHub() {
             const textContent = contacts.map(c => `${c.name}${c.detail ? ' - ' + c.detail : ''};${c.phone}`).join('\n');
             const base64Content = btoa(unescape(encodeURIComponent(textContent)));
-            const apiUrl = `https://api.github.com/repos/${config.github_user}/${config.github_repo}/contents/rehber.txt`;
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/rehber.txt`;
 
             try {
                 const getRes = await fetch(apiUrl, {
-                    headers: { 'Authorization': `Bearer ${config.github_token}` }
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
                 });
                 const fileData = await getRes.json();
                 const sha = fileData.sha;
@@ -139,7 +128,7 @@
                 const putRes = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${config.github_token}`,
+                        'Authorization': `token ${GITHUB_TOKEN}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
@@ -233,7 +222,7 @@
             modalBody.innerHTML = `
                 <div class="space-y-4 py-4">
                     <p class="text-sm text-gray-600">Yönetim paneline erişmek için şifreyi giriniz:</p>
-                    <input type="password" id="adminPassInput" placeholder="Şifre" class="w-full px-4 py-3 bg-gray-100 rounded-xl text-base outline-none border border-gray-200 focus:border-blue-500">
+                    <input type="password" id="adminPassInput" placeholder="Şifre (1234)" class="w-full px-4 py-3 bg-gray-100 rounded-xl text-base outline-none border border-gray-200 focus:border-blue-500">
                     <button onclick="checkAdminPassword()" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-700 transition">Giriş Yap</button>
                 </div>
             `;
@@ -243,7 +232,7 @@
 
         function checkAdminPassword() {
             const val = document.getElementById('adminPassInput').value;
-            if (val === config.admin_pass) {
+            if (val === ADMIN_PASS) {
                 renderAdminPanel();
             } else {
                 alert("Hatalı şifre!");
