@@ -73,18 +73,25 @@
         let config = {};
         const sabitSantralNo = "03267121719"; 
 
-        // CONFIG DOSYASINI VE REHBERİ YÜKLEME
+        // CONFIG VE REHBER.TXT DOSYASINI GİTHUB API ÜZERİNDEN OKUMA
         async function loadData() {
             try {
-                // Config dosyasını oku
+                // 1. Önce config.json dosyasını oku
                 const configRes = await fetch('config.json?t=' + Date.now());
                 if (!configRes.ok) throw new Error("config.json okunamadı!");
                 config = await configRes.json();
 
-                // Rehber dosyasını oku
-                const response = await fetch('rehber.txt?t=' + Date.now());
-                if (!response.ok) throw new Error("rehber.txt yüklenemedi");
-                const text = await response.text();
+                // 2. Gizli repolar için rehber.txt dosyasını GitHub API (Bearer token) ile çek
+                const apiUrl = `https://api.github.com/repos/${config.github_user}/${config.github_repo}/contents/rehber.txt`;
+                const res = await fetch(apiUrl, {
+                    headers: { 'Authorization': `Bearer ${config.github_token}` }
+                });
+                
+                if (!res.ok) throw new Error("rehber.txt GitHub API üzerinden okunamadı!");
+                const fileJson = await res.json();
+                
+                // Base64 içeriğini çöz
+                const text = decodeURIComponent(escape(atob(fileJson.content)));
                 
                 contacts = text.split('\n')
                     .filter(line => line.trim().includes(';'))
@@ -116,7 +123,7 @@
             }
         }
 
-        // GİTHUB API GÜNCELLEME (Bearer token formatı düzeltildi)
+        // GİTHUB API ÜZERİNDEN REHBER.TXT DOSYASINI GÜNCELLEME
         async function saveToGitHub() {
             const textContent = contacts.map(c => `${c.name}${c.detail ? ' - ' + c.detail : ''};${c.phone}`).join('\n');
             const base64Content = btoa(unescape(encodeURIComponent(textContent)));
@@ -149,14 +156,6 @@
                 console.error("Kayıt hatası:", e);
                 alert("GitHub API ile bağlantı kurulamadı!");
             }
-        }
-
-        // Şifre güvenliği için SHA-256 hash hesaplama fonksiyonu
-        async function hashString(string) {
-            const utf8 = new TextEncoder().encode(string);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
         function normalizeText(text) {
@@ -242,10 +241,9 @@
             lucide.createIcons();
         }
 
-        async function checkAdminPassword() {
+        function checkAdminPassword() {
             const val = document.getElementById('adminPassInput').value;
-            const inputHash = await hashString(val);
-            if (inputHash === config.admin_pass_hash) {
+            if (val === config.admin_pass) {
                 renderAdminPanel();
             } else {
                 alert("Hatalı şifre!");
