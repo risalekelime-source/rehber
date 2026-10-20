@@ -52,8 +52,8 @@
                 <h2 class="font-bold text-xl md:text-2xl text-[#1c1c1e] tracking-tight">Rehber</h2>
                 <div id="contactCount" class="text-xs text-[#8e8e93] font-bold uppercase tracking-wider">Yükleniyor...</div>
             </div>
-            <button onclick="loadData()" class="p-2 rounded-full bg-[#e3e3e8] text-[#1c1c1e] hover:bg-[#d1d1d6] transition active:scale-95 flex items-center justify-center" title="Yenile">
-                <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+            <button onclick="loadData()" class="p-2.5 rounded-full bg-[#e3e3e8] text-[#1c1c1e] hover:bg-[#d1d1d6] transition active:scale-95 flex items-center justify-center" title="Yenile">
+                <i data-lucide="rotate-cw" class="w-5 h-5"></i>
             </button>
         </div>
 
@@ -64,9 +64,9 @@
 
         <!-- Arama Çubuğu -->
         <div class="flex-shrink-0 px-3.5 py-2.5 bg-[#f2f2f7]/95 backdrop-blur-xl border-t border-[#d1d1d6] safe-bottom z-30">
-            <div class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#e3e3e8]">
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#e3e3e8]">
                 <i data-lucide="search" class="w-5 h-5 text-[#8e8e93]"></i>
-                <input id="searchInput" type="text" placeholder="İsim, kat veya dahili numara ara..." class="bg-transparent flex-1 text-base text-[#1c1c1e] outline-none placeholder-[#8e8e93]">
+                <input id="searchInput" type="text" placeholder="İsim, kat veya dahili numara ara..." class="bg-transparent flex-1 text-base md:text-lg text-[#1c1c1e] outline-none placeholder-[#8e8e93]">
             </div>
         </div>
 
@@ -167,39 +167,39 @@
             filtered.forEach((c) => {
                 const letter = (c.name[0] || '#').toUpperCase();
                 if (letter !== lastLetter) {
-                    html += `<div class="px-2 py-1 text-xs font-bold text-[#8e8e93] sticky top-0 bg-[#f2f2f7]/95 backdrop-blur-sm z-10">${letter}</div>`;
+                    html += `<div class="px-2.5 py-1 text-sm font-bold text-[#8e8e93] sticky top-0 bg-[#f2f2f7]/95 backdrop-blur-sm z-10">${letter}</div>`;
                     lastLetter = letter;
                 }
                 
                 const aramaLinki = `tel:${sabitSantralNo},,${c.phone}`;
-                const detailBadge = c.detail ? `<span class="text-[#007aff] font-bold bg-blue-50 px-2 py-0.5 rounded-md text-[13px] ml-1">${c.detail}</span>` : '';
+                const detailBadge = c.detail ? `<span class="text-[#007aff] font-bold bg-blue-50 px-2.5 py-1 rounded-md text-[14px] ml-1.5 shadow-sm">${c.detail}</span>` : '';
 
-                // Büyütüldü: İsimler belirgin olarak okunaklı font seçimi
+                // İsimler için büyük ve esnek yazı boyutları
                 const nameLength = c.name.length;
-                let nameSizeClass = "text-[16px] sm:text-[17px]";
+                let nameSizeClass = "text-[18px] sm:text-[19px]";
                 if (nameLength > 32) {
-                    nameSizeClass = "text-[13px]";
+                    nameSizeClass = "text-[15px]";
                 } else if (nameLength > 22) {
-                    nameSizeClass = "text-[14px]";
+                    nameSizeClass = "text-[16px]";
                 }
 
                 html += `
-                    <a href="${aramaLinki}" class="block bg-white rounded-2xl mb-2 shadow-sm active:scale-[0.98] transition-transform no-underline">
-                        <div class="flex items-center gap-3.5 p-3.5">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base shrink-0 shadow-sm" style="background:${getAvatarColor(c.name)}">
+                    <a href="${aramaLinki}" class="block bg-white rounded-2xl mb-2.5 shadow-sm active:scale-[0.98] transition-transform no-underline">
+                        <div class="flex items-center gap-4 p-4">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm" style="background:${getAvatarColor(c.name)}">
                                 ${c.name.charAt(0).toUpperCase()}
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="text-[#1c1c1e] font-bold ${nameSizeClass} leading-tight truncate">${c.name}</div>
-                                <div class="flex items-center flex-wrap gap-1.5 mt-1">
-                                    <span class="inline-flex items-center bg-emerald-50 text-emerald-700 font-extrabold text-[13px] px-2 py-0.5 rounded-md border border-emerald-100">
+                                <div class="flex items-center flex-wrap gap-2 mt-1.5">
+                                    <span class="inline-flex items-center bg-emerald-50 text-emerald-700 font-black text-[14px] px-2.5 py-1 rounded-md border border-emerald-100 shadow-sm">
                                         Dahili: ${c.phone}
                                     </span>
                                     ${detailBadge}
                                 </div>
                             </div>
-                            <div class="ml-auto text-[#34c759] shrink-0 bg-green-50 p-2 rounded-full">
-                                <i data-lucide="phone-forwarded" class="w-5 h-5"></i>
+                            <div class="ml-auto text-[#34c759] shrink-0 bg-green-50 p-2.5 rounded-full shadow-sm">
+                                <i data-lucide="phone-forwarded" class="w-6 h-6"></i>
                             </div>
                         </div>
                     </a>`;
