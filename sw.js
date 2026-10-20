@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ddh-rehber-v7';
+const CACHE_NAME = 'ddh-rehber-v8';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
