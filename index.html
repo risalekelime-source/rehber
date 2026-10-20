@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr" class="h-full">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -18,7 +18,10 @@
     
     <style>
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        
+        /* Mobil dikeyde tam ekran sığma ve taşmayı önleme ayarları */
         html, body {
+            width: 100%;
             height: 100%;
             height: 100dvh;
             margin: 0;
@@ -26,21 +29,24 @@
             overflow: hidden;
             background: #e5e5ea;
             font-family: 'DM Sans', sans-serif;
+            position: fixed;
         }
+
         input:focus { outline: none; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 4px; }
+        
         .safe-top { padding-top: env(safe-area-inset-top); }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
-<body class="flex justify-center items-center">
-    <div id="app" class="w-full h-full md:max-w-2xl md:h-[90vh] md:rounded-3xl md:shadow-2xl flex flex-col overflow-hidden bg-[#f2f2f7]">
+<body>
+    <div id="app" class="absolute inset-0 w-full h-full md:max-w-2xl md:mx-auto md:my-auto md:h-[90vh] md:rounded-3xl md:shadow-2xl flex flex-col overflow-hidden bg-[#f2f2f7]">
         
-        <!-- Üst Başlık -->
+        <!-- Üst Başlık (Sabit Yükseklik) -->
         <div class="flex-shrink-0 px-4 pt-2.5 pb-1.5 safe-top bg-[#f2f2f7]/95 backdrop-blur-md z-20 flex justify-between items-center border-b border-[#d1d1d6]/50">
             <div>
-                <h2 class="font-bold text-base md:text-lg text-[#1c1c1e] tracking-tight">Rehber3</h2>
+                <h2 class="font-bold text-base md:text-lg text-[#1c1c1e] tracking-tight">Rehber5</h2>
                 <div id="contactCount" class="text-[9px] text-[#8e8e93] font-bold uppercase tracking-wider">Yükleniyor...</div>
             </div>
             <button onclick="loadData()" class="p-1.5 rounded-full bg-[#e3e3e8] text-[#1c1c1e] hover:bg-[#d1d1d6] transition active:scale-95 flex items-center justify-center" title="Yenile">
@@ -48,12 +54,12 @@
             </button>
         </div>
 
-        <!-- Liste Alanı -->
+        <!-- Liste Alanı (Dikeyde kalan esnek alan, kendi içinde kaydırılabilir) -->
         <div id="contactList" class="flex-1 min-h-0 overflow-y-auto pt-1 pb-2">
             <div id="listContent" class="space-y-1.5 px-3"></div>
         </div>
 
-        <!-- Arama Çubuğu -->
+        <!-- Arama Çubuğu (Sabit Alt Kısım) -->
         <div class="flex-shrink-0 px-3 py-2 bg-[#f2f2f7]/95 backdrop-blur-xl border-t border-[#d1d1d6] safe-bottom z-30">
             <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#e3e3e8]">
                 <i data-lucide="search" class="w-4 h-4 text-[#8e8e93]"></i>
@@ -64,7 +70,6 @@
     </div>
 
     <script>
-        // Service Worker Kaydı (Çevrimdışı Çalışma Desteği)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -151,7 +156,14 @@
                 const aramaLinki = `tel:${sabitSantralNo},,${c.phone}`;
                 const detailBadge = c.detail ? `<span class="text-[#007aff] font-medium bg-blue-50 px-1.5 py-0.5 rounded text-[11px] ml-1">${c.detail}</span>` : '';
 
-                // Kişi kartlarının iç boşlukları p-3 (px-3 py-3) olarak ayarlandı
+                const nameLength = c.name.length;
+                let nameSizeClass = "text-[13px]";
+                if (nameLength > 28) {
+                    nameSizeClass = "text-[11px]";
+                } else if (nameLength > 20) {
+                    nameSizeClass = "text-[12px]";
+                }
+
                 html += `
                     <a href="${aramaLinki}" class="block bg-white rounded-xl mb-1.5 shadow-sm active:scale-[0.98] transition-transform no-underline">
                         <div class="flex items-center gap-3 p-3">
@@ -159,7 +171,7 @@
                                 ${c.name.charAt(0).toUpperCase()}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="text-[#1c1c1e] font-bold text-[13px] leading-tight truncate">${c.name}</div>
+                                <div class="text-[#1c1c1e] font-bold ${nameSizeClass} leading-tight truncate">${c.name}</div>
                                 <div class="flex items-center flex-wrap gap-1 mt-1">
                                     <span class="inline-flex items-center bg-emerald-50 text-emerald-700 font-extrabold text-[12px] px-1.5 py-0.5 rounded border border-emerald-100">
                                         Dahili: ${c.phone}
