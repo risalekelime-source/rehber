@@ -27,6 +27,7 @@
             overflow: hidden;
             background: #e5e5ea;
             font-family: 'DM Sans', sans-serif;
+            overscroll-behavior-y: none; /* Tarayıcının kendi yenileme tetikleyicisini engelle */
         }
 
         #app {
@@ -41,6 +42,20 @@
         
         .safe-top { padding-top: env(safe-area-inset-top); }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+        /* Pull-to-refresh gösterge animasyonu */
+        #pullRefreshIndicator {
+            height: 0px;
+            overflow: hidden;
+            transition: height 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e5e5ea;
+            color: #8e8e93;
+            font-size: 12px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="flex justify-center items-start">
@@ -55,6 +70,11 @@
             <button onclick="loadData()" class="p-2.5 rounded-full bg-[#e3e3e8] text-[#1c1c1e] hover:bg-[#d1d1d6] transition active:scale-95 flex items-center justify-center" title="Yenile">
                 <i data-lucide="rotate-cw" class="w-5 h-5"></i>
             </button>
+        </div>
+
+        <!-- Pull to Refresh Gösterge Alanı -->
+        <div id="pullRefreshIndicator">
+            <span id="pullText">Yenilemek için aşağı çekin...</span>
         </div>
 
         <!-- Liste Alanı -->
@@ -174,7 +194,6 @@
                 const aramaLinki = `tel:${sabitSantralNo},,${c.phone}`;
                 const detailBadge = c.detail ? `<span class="text-[#007aff] font-bold bg-blue-50 px-2.5 py-1 rounded-md text-[14px] ml-1.5 shadow-sm">${c.detail}</span>` : '';
 
-                // İsimler için büyük ve esnek yazı boyutları
                 const nameLength = c.name.length;
                 let nameSizeClass = "text-[18px] sm:text-[19px]";
                 if (nameLength > 32) {
@@ -217,6 +236,51 @@
         }
 
         document.getElementById('searchInput').oninput = renderList;
+
+        // --- Pull-to-Refresh (Aşağı Çekerek Yenileme) Mekanizması ---
+        const contactList = document.getElementById('contactList');
+        const pullIndicator = document.getElementById('pullRefreshIndicator');
+        const pullText = document.getElementById('pullText');
+        
+        let startY = 0;
+        let pulling = false;
+
+        contactList.addEventListener('touchstart', (e) => {
+            if (contactList.scrollTop === 0) {
+                startY = e.touches[0].clientY;
+                pulling = true;
+            }
+        }, { passive: true });
+
+        contactList.addEventListener('touchmove', (e) => {
+            if (!pulling) return;
+            const currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+
+            if (diff > 0 && contactList.scrollTop === 0) {
+                const pullDistance = Math.min(diff * 0.4, 60);
+                pullIndicator.style.height = `${pullDistance}px`;
+                if (pullDistance > 45) {
+                    pullText.textContent = "Bırakarak yenile...";
+                } else {
+                    pullText.textContent = "Yenilemek için aşağı çekin...";
+                }
+            }
+        }, { passive: true });
+
+        contactList.addEventListener('touchend', async () => {
+            if (!pulling) return;
+            pulling = false;
+            const currentHeight = parseInt(pullIndicator.style.height || '0');
+
+            if (currentHeight > 45) {
+                pullText.textContent = "Yükleniyor...";
+                pullIndicator.style.height = "40px";
+                await loadData();
+            }
+            pullIndicator.style.height = "0px";
+        });
+
         loadData();
     </script>
 </body>
