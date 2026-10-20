@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="tr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -18,7 +18,15 @@
     
     <style>
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #e5e5ea; font-family: 'DM Sans', sans-serif; }
+        html, body {
+            height: 100%;
+            height: 100dvh; /* Dikey oto-boyutlandırma */
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #e5e5ea;
+            font-family: 'DM Sans', sans-serif;
+        }
         input:focus { outline: none; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 4px; }
@@ -26,13 +34,14 @@
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
-<body>
-    <div id="app" class="absolute inset-0 md:max-w-2xl md:mx-auto md:my-auto md:h-[90vh] md:rounded-3xl md:shadow-2xl flex flex-col overflow-hidden bg-[#f2f2f7]">
+<body class="flex justify-center items-center">
+    <!-- Ana Kapsayıcı: Mobil ekranlarda tam dikey yüksekliğe (100dvh) otomatik uyarlanır -->
+    <div id="app" class="w-full h-full md:max-w-2xl md:h-[90vh] md:rounded-3xl md:shadow-2xl flex flex-col overflow-hidden bg-[#f2f2f7]">
         
-        <!-- Header -->
+        <!-- Üst Başlık (Sabit Yükseklik) -->
         <div class="flex-shrink-0 px-4 pt-3 pb-2 safe-top bg-[#f2f2f7]/95 backdrop-blur-md z-20 flex justify-between items-center border-b border-[#d1d1d6]/50">
             <div>
-                <h2 class="font-bold text-lg md:text-xl text-[#1c1c1e] tracking-tight">Rehber2</h2>
+                <h2 class="font-bold text-lg md:text-xl text-[#1c1c1e] tracking-tight">Rehber</h2>
                 <div id="contactCount" class="text-[10px] text-[#8e8e93] font-bold uppercase tracking-wider">Yükleniyor...</div>
             </div>
             <button onclick="loadData()" class="p-2 rounded-full bg-[#e3e3e8] text-[#1c1c1e] hover:bg-[#d1d1d6] transition active:scale-95 flex items-center justify-center" title="Yenile">
@@ -40,12 +49,12 @@
             </button>
         </div>
 
-        <!-- Liste Alanı -->
-        <div id="contactList" class="flex-1 overflow-y-auto pt-1.5 pb-20">
+        <!-- Liste Alanı (Dikeyde kalan tüm alanı otomatik kaplar ve kaydırılır) -->
+        <div id="contactList" class="flex-1 min-h-0 overflow-y-auto pt-1.5 pb-3">
             <div id="listContent" class="space-y-1 px-3"></div>
         </div>
 
-        <!-- Arama Çubuğu -->
+        <!-- Arama Çubuğu (Sabit Alt Kısım) -->
         <div class="flex-shrink-0 px-3 py-2 bg-[#f2f2f7]/95 backdrop-blur-xl border-t border-[#d1d1d6] safe-bottom z-30">
             <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#e3e3e8]">
                 <i data-lucide="search" class="w-4 h-4 text-[#8e8e93]"></i>
