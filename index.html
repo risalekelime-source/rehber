@@ -134,19 +134,26 @@
                 
                 const aramaLinki = `tel:${sabitSantralNo},,${c.phone}`;
                 const nameSizeClass = c.name.length > 25 ? 'text-[14px] sm:text-[16px]' : 'text-[16px] sm:text-[17px]';
-                const phoneDisplay = c.detail ? `Dahili: ${c.phone} (${c.detail})` : `Dahili: ${c.phone}`;
+                
+                // Dahili numara ve kat bilgisini daha belirgin hale getiren tasarım
+                const detailBadge = c.detail ? `<span class="text-[#007aff] font-semibold bg-blue-50 px-2 py-0.5 rounded-md ml-1.5 text-xs">${c.detail}</span>` : '';
 
                 html += `
                     <a href="${aramaLinki}" class="block bg-white mx-4 rounded-2xl mb-2 shadow-sm active:scale-[0.98] transition-transform no-underline">
                         <div class="flex items-center gap-4 p-4">
-                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0" style="background:${getAvatarColor(c.name)}">
+                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm" style="background:${getAvatarColor(c.name)}">
                                 ${c.name.charAt(0).toUpperCase()}
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="text-[#1c1c1e] font-bold ${nameSizeClass} leading-tight truncate">${c.name}</div>
-                                <div class="text-[#8e8e93] text-[13px] sm:text-[14px] mt-0.5 font-medium italic">${phoneDisplay}</div>
+                                <div class="flex items-center flex-wrap gap-1 mt-1">
+                                    <span class="inline-flex items-center bg-emerald-50 text-emerald-700 font-extrabold text-[14px] px-2 py-0.5 rounded-lg border border-emerald-100">
+                                        Dahili: ${c.phone}
+                                    </span>
+                                    ${detailBadge}
+                                </div>
                             </div>
-                            <div class="ml-auto text-[#34c759] shrink-0">
+                            <div class="ml-auto text-[#34c759] shrink-0 bg-green-50 p-2.5 rounded-full">
                                 <i data-lucide="phone-forwarded" class="w-5 h-5"></i>
                             </div>
                         </div>
