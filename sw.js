@@ -1,9 +1,9 @@
-const CACHE_NAME = 'ddh-rehber-v8';
+const CACHE_NAME = 'ddh-rehber-v9';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
-    'https://cdn.tailwindcss.com/3.4.1',
+    'https://cdn.tailwindcss.com/3.4.1',https://github.com/risalekelime-source/rehber/blob/main/sw.js
     'https://unpkg.com/lucide@latest',
     'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap'
 ];
